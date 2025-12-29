@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة تيم العمل - محمود 🚀</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --bg-body: #0f172a; --bg-card: #1e293b; 
+            --primary: #3b82f6; --secondary: #10b981; /* تغيير اللون للأخضر ليدل على التيم */
+            --text-main: #f1f5f9; --text-muted: #94a3b8;
+            --success: #10b981; --danger: #ef4444; --warning: #f59e0b;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); 
+            --radius: 12px;
+        }
+
+        * { box-sizing: border-box; font-family: 'Cairo', sans-serif; outline: none; }
+        
+        body { 
+            background-color: var(--bg-body);
+            background-image: radial-gradient(at 100% 0%, hsla(160, 40%, 15%, 1) 0, transparent 50%), radial-gradient(at 0% 100%, hsla(220, 39%, 20%, 1) 0, transparent 50%);
+            color: var(--text-main); margin: 0; padding: 0; min-height: 100vh;
+        }
+
+        /* Login Style */
+        #loginContainer {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 90%; max-width: 400px; background: rgba(30, 41, 59, 0.95);
+            padding: 40px; border-radius: 20px; text-align: center;
+            border: 1px solid rgba(255,255,255,0.05); box-shadow: 0 20px 25px rgba(0,0,0,0.5);
+        }
+        #loginContainer h2 { color: var(--secondary); margin-bottom: 30px; }
+        #loginContainer input { background: #0f172a; border: 1px solid #334155; color: white; border-radius: 8px; margin-bottom: 15px; padding: 15px; width: 100%; }
+        
+        .container { max-width: 1000px; margin: 0 auto; padding: 20px; }
+        
+        header {
+            display: flex; justify-content: space-between; align-items: center;
+            background: rgba(30, 41, 59, 0.8); padding: 15px 25px; 
+            border-radius: var(--radius); margin-bottom: 30px;
+            border-bottom: 2px solid var(--secondary);
+        }
+        
+        .wallet-card {
+            background: linear-gradient(135deg, #059669, #10b981);
+            color: white; padding: 25px; border-radius: 16px;
+            text-align: center; margin-bottom: 30px;
+            box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.3);
+        }
+        .wallet-card h3 { font-size: 2.5rem; margin: 10px 0; font-weight: 900; }
+        .wallet-card p { opacity: 0.9; margin: 0; font-size: 1.1rem; }
+
+        .btn-primary { 
+            background: var(--secondary); color: white; padding: 12px 24px; 
+            border-radius: 50px; border: none; cursor: pointer; width: 100%; 
+            font-size: 1.1rem; font-weight: bold; transition: 0.3s;
+        }
+        .btn-primary:hover { background: #047857; transform: translateY(-2px); }
+        .btn-logout { background: rgba(239, 68, 68, 0.2); color: var(--danger); border:none; padding: 8px 15px; border-radius: 8px; cursor: pointer; }
+
+        .search-container input {
+            width: 100%; background: var(--bg-card); border: 2px solid #334155;
+            padding: 12px; border-radius: 12px; color: white; text-align: center;
+            margin-bottom: 20px; transition: 0.3s;
+        }
+        .search-container input:focus { border-color: var(--secondary); }
+
+        .table-wrapper { background: var(--bg-card); border-radius: 16px; overflow-x: auto; padding: 10px; }
+        table { width: 100%; border-collapse: separate; border-spacing: 0 5px; }
+        th { color: var(--text-muted); padding: 10px; font-size: 0.9rem; }
+        td { background: #263346; padding: 15px; text-align: center; vertical-align: middle; }
+        td:first-child { border-radius: 0 10px 10px 0; }
+        td:last-child { border-radius: 10px 0 0 10px; }
+
+        .badge { padding: 4px 8px; border-radius: 12px; font-size: 0.75rem; }
+        .badge-active { background: rgba(16, 185, 129, 0.2); color: var(--success); }
+        .badge-expired { background: rgba(239, 68, 68, 0.2); color: var(--danger); }
+
+        .action-btn { border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; margin: 2px; }
+        .btn-copy { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
+        .btn-renew { background: rgba(16, 185, 129, 0.2); color: #34d399; }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7); backdrop-filter: blur(5px);
+            display: none; justify-content: center; align-items: center; z-index: 999;
+        }
+        .modal-content { 
+            background: #1e293b; padding: 30px; border-radius: 20px; width: 95%; max-width: 450px; 
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .modal-content input, .modal-content select {
+            width: 100%; padding: 12px; margin: 10px 0; 
+            background: #0f172a; border: 1px solid #334155; color: white; border-radius: 8px;
+        }
+
+        /* Toast */
+        #toast-container { position: fixed; bottom: 20px; left: 20px; z-index: 1000; }
+        .toast { padding: 12px 20px; border-radius: 8px; color: white; margin-top: 10px; animation: slideUp 0.3s; }
+        .toast-success { background: #059669; }
+        .toast-error { background: #dc2626; }
+        
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        
+        @media (max-width: 768px) {
+            td { display: block; text-align: right; padding: 10px; border-bottom: 1px solid #334155; }
+            td:first-child { border-radius: 10px 10px 0 0; background: #334155; text-align: center; }
+            td:last-child { border-radius: 0 0 10px 10px; display: flex; justify-content: center; gap: 10px; }
+            thead { display: none; }
+            td::before { content: attr(data-label); float: left; color: var(--text-muted); font-size: 0.85rem; }
+        }
+    </style>
+</head>
+<body>
+
+<script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js';
+    import { getDatabase, ref, onValue, update, set } from 'https://www.gstatic.com/firebasejs/10.1.0/firebase-database.js';
+    import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.1.0/firebase-auth.js'; 
+
+    // نفس الإعدادات الخاصة بك
+    const firebaseConfig = {
+        apiKey: "AIzaSyBK6FZF3LW83qaUHBKYTfiVd2Ozrd1Rf2g",
+        authDomain: "thanawy-1383.firebaseapp.com",
+        databaseURL: "https://thanawy-1383-default-rtdb.firebaseio.com",
+        projectId: "thanawy-1383",
+        storageBucket: "thanawy-1383.firebasestorage.app",
+        messagingSenderId: "1026664406457",
+        appId: "1:1026664406457:web:87d71f7e41bef36ba0aa68",
+        measurementId: "G-J5R2EFM2D0"
+    };
+    
+    // ==========================================
+    // ⚠️ إعدادات حساب محمود (عدلها هنا)
+    // ==========================================
+    const MY_ROLE_NAME = 'mahmoud'; // الاسم الذي سيظهر في قاعدة البيانات
+    const MAHMOUD_UID = "ضع_الـUID_الخاص_بمحمود_هنا"; // <--- هام جداً: انسخ الـ UID من الفايربيس وضعه هنا
+    // ==========================================
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const auth = getAuth(app);
+    const codesRef = ref(db, 'approvedStudents');
+
+    let myCodes = []; // لتخزين أكواد محمود فقط
+    let currentUid = null;
+
+    // Toast Notification
+    window.showToast = (msg, type = "success") => {
+        const container = document.getElementById('toast-container');
+        const div = document.createElement('div');
+        div.className = `toast toast-${type}`;
+        div.innerHTML = msg;
+        container.appendChild(div);
+        setTimeout(() => div.remove(), 3000);
+    };
+
+    // Authentication Check
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            // تحقق بسيط من الـ UID لزيادة الأمان
+            if(user.uid !== MAHMOUD_UID && MAHMOUD_UID !== "ضع_الـUID_الخاص_بمحمود_هنا") {
+                showToast("غير مصرح لك بدخول هذه اللوحة", "error");
+                signOut(auth);
+                return;
+            }
+            currentUid = user.uid;
+            document.getElementById('loginContainer').style.display = 'none';
+            document.getElementById('mainContent').style.display = 'block';
+            loadMyData();
+        } else {
+            document.getElementById('loginContainer').style.display = 'block';
+            document.getElementById('mainContent').style.display = 'none';
+        }
+    });
+
+    window.handleLogin = (e) => {
+        e.preventDefault();
+        const email = document.getElementById('email').value;
+        const pass = document.getElementById('password').value;
+        signInWithEmailAndPassword(auth, email, pass).catch(err => showToast("خطأ في الدخول: " + err.message, "error"));
+    };
+
+    window.logout = () => signOut(auth);
+
+    // Load Data Logic (Filter Only Mahmoud's Data)
+    function loadMyData() {
+        onValue(codesRef, (snap) => {
+            const data = snap.val() || {};
+            // هنا الفلترة: نأخذ فقط الأكواد التي أضافها محمود
+            myCodes = Object.values(data).filter(item => 
+                item.addedByAdmin && item.addedByAdmin.toLowerCase() === MY_ROLE_NAME
+            );
+            
+            updateWalletStats();
+            renderTable();
+        });
+    }
+
+    function updateWalletStats() {
+        // حساب إجمالي التحصيل الخاص بمحمود فقط
+        const total = myCodes.reduce((sum, item) => sum + (parseFloat(item.pricePaid) || 0), 0);
+        document.getElementById('myBalance').innerText = total.toLocaleString() + ' ج.م';
+        document.getElementById('studentsCount').innerText = myCodes.length + ' طالب';
+    }
+
+    window.renderTable = () => {
+        const search = document.getElementById('searchInput').value.toLowerCase();
+        const tbody = document.getElementById('codesBody');
+        tbody.innerHTML = '';
+
+        // ترتيب حسب الأحدث
+        const filtered = myCodes
+            .sort((a,b) => b.approvedAt - a.approvedAt)
+            .filter(c => c.name.toLowerCase().includes(search) || c.uid.includes(search));
+
+        if(filtered.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="6" style="color:var(--text-muted)">لا توجد بيانات...</td></tr>`;
+            return;
+        }
+
+        const now = Date.now();
+
+        filtered.forEach(item => {
+            const isExpired = item.expiry < now;
+            const status = isExpired 
+                ? '<span class="badge badge-expired">منتهي</span>' 
+                : '<span class="badge badge-active">نشط</span>';
+            
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td data-label="الكود" style="font-family:monospace; font-weight:bold; color:var(--primary)">${item.uid}</td>
+                <td data-label="الاسم">${item.name}</td>
+                <td data-label="المبلغ">${item.pricePaid}</td>
+                <td data-label="الشعبة">${item.section}</td>
+                <td data-label="الحالة">${status}</td>
+                <td data-label="إجراءات">
+                    <button onclick="copyToClip('${item.uid}')" class="action-btn btn-copy" title="نسخ"><i class="fas fa-copy"></i></button>
+                    ${isExpired ? `<button onclick="renewCode('${item.uid}', '${item.name}')" class="action-btn btn-renew" title="تجديد"><i class="fas fa-sync"></i></button>` : ''}
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    };
+
+    // Helper Functions
+    window.copyToClip = (text) => {
+        navigator.clipboard.writeText(text);
+        showToast("تم النسخ: " + text);
+    };
+
+    window.generateCode = () => {
+        // توليد كود عشوائي لا يتعارض مع الموجود
+        let code;
+        const existingIds = myCodes.map(c => c.uid); 
+        // ملاحظة: للتحقق الدقيق يفضل التحقق من الداتا بيز كاملة، لكن هنا سنعتمد على العشوائية العالية
+        do { code = String(Math.floor(100000 + Math.random() * 900000)); } while (existingIds.includes(code));
+        document.getElementById('newCodeText').innerText = code;
+    };
+
+    window.openAddModal = () => {
+        generateCode();
+        document.getElementById('addModal').style.display = 'flex';
+    };
+    window.closeModal = () => document.getElementById('addModal').style.display = 'none';
+
+    // Add New Code Logic
+    window.saveCode = (e) => {
+        e.preventDefault();
+        const code = document.getElementById('newCodeText').innerText;
+        const name = document.getElementById('sName').value;
+        const section = document.getElementById('sSection').value;
+        const price = parseFloat(document.getElementById('sPrice').value) || 0;
+        const duration = document.getElementById('sDuration').value;
+
+        let expiryTime = Date.now();
+        if (duration === 'trial') expiryTime += 3600000; // ساعة
+        else if (duration === 'month') expiryTime += 2592000000; // 30 يوم
+        
+        const newStudent = {
+            uid: code,
+            name: name,
+            section: section,
+            pricePaid: price,
+            addedByAdmin: MY_ROLE_NAME, // <--- هنا السر: يتم تسجيل أن محمود هو من أضافه
+            approvedAt: Date.now(),
+            expiry: expiryTime,
+            deviceId: "",
+            isBlocked: false
+        };
+
+        set(ref(db, 'approvedStudents/' + code), newStudent)
+        .then(() => {
+            showToast("تم إضافة الطالب بنجاح 🎉");
+            closeModal();
+            document.getElementById('addForm').reset();
+        })
+        .catch(err => showToast("خطأ: " + err.message, "error"));
+    };
+
+    // Renew Logic (Simple)
+    window.renewCode = (uid, name) => {
+        const days = prompt(`تجديد اشتراك الطالب: ${name}\nأدخل عدد الأيام:`);
+        if(days && !isNaN(days)) {
+             // نحتاج قراءة الكود الحالي لتحديد وقت الانتهاء بدقة، هنا سنفترض التجديد من الآن أو التمديد
+            const item = myCodes.find(c => c.uid === uid);
+            let newExpiry = (item.expiry < Date.now()) ? Date.now() + (days * 86400000) : item.expiry + (days * 86400000);
+            
+            update(ref(db, 'approvedStudents/' + uid), { expiry: newExpiry })
+            .then(() => showToast("تم التجديد بنجاح ✅"));
+        }
+    };
+
+</script>
+
+<div class="container">
+    <div id="loginContainer">
+        <h2><i class="fas fa-users-cog"></i> فريق العمل</h2>
+        <form onsubmit="handleLogin(event)">
+            <input type="email" id="email" placeholder="البريد الإلكتروني" required>
+            <input type="password" id="password" placeholder="كلمة المرور" required>
+            <button type="submit" class="btn-primary">دخول المسوقين</button>
+        </form>
+    </div>
+
+    <div id="mainContent" style="display:none;">
+        <header>
+            <div style="font-weight:bold; font-size:1.2rem;">👋 أهلاً يا بطل</div>
+            <button onclick="logout()" class="btn-logout"><i class="fas fa-sign-out-alt"></i> خروج</button>
+        </header>
+
+        <div class="wallet-card">
+            <i class="fas fa-wallet fa-2x" style="opacity:0.8; margin-bottom:10px;"></i>
+            <p>رصيدك الحالي</p>
+            <h3 id="myBalance">0 ج.م</h3>
+            <div style="font-size:0.9rem; margin-top:10px; opacity:0.8;">عدد طلابك: <span id="studentsCount">0</span></div>
+        </div>
+
+        <button class="btn-primary" onclick="openAddModal()" style="margin-bottom:20px;">
+            <i class="fas fa-user-plus"></i> إضافة كود جديد
+        </button>
+
+        <div class="search-container">
+            <input type="text" id="searchInput" placeholder="🔍 ابحث في أكوادك فقط..." oninput="renderTable()">
+        </div>
+
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>الكود</th>
+                        <th>الاسم</th>
+                        <th>المبلغ</th>
+                        <th>الشعبة</th>
+                        <th>الحالة</th>
+                        <th>تحكم</th>
+                    </tr>
+                </thead>
+                <tbody id="codesBody">
+                    </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div id="addModal" class="modal-overlay">
+    <div class="modal-content">
+        <h3 style="color:var(--secondary); text-align:center;">إضافة طالب جديد</h3>
+        <div style="text-align:center; margin:15px 0; background:#0f172a; padding:10px; border-radius:10px; font-size:1.5rem; letter-spacing:2px; font-weight:bold;" id="newCodeText">---</div>
+        
+        <form id="addForm" onsubmit="saveCode(event)">
+            <input type="text" id="sName" placeholder="اسم الطالب" required>
+            <select id="sSection" required>
+                <option value="">اختر الشعبة</option>
+                <option value="علمي علوم">علمي علوم</option>
+                <option value="علمي رياضة">علمي رياضة</option>
+                <option value="أدبي">أدبي</option>
+                <option value="أزهر">أزهر</option>
+            </select>
+            <input type="number" id="sPrice" placeholder="المبلغ المحصل" required>
+            <select id="sDuration">
+                <option value="month">شهر (30 يوم)</option>
+                <option value="trial">تجريبي (ساعة)</option>
+            </select>
+            
+            <div style="display:flex; gap:10px; margin-top:20px;">
+                <button type="submit" class="btn-primary">حفظ الكود</button>
+                <button type="button" onclick="closeModal()" style="background:#334155; color:white; border:none; padding:10px 20px; border-radius:50px; cursor:pointer;">إلغاء</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="toast-container"></div>
+
+</body>
+</html>
