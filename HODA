@@ -145,7 +145,7 @@
     const db = getDatabase(app);
     const auth = getAuth(app);
     const codesRef = ref(db, 'approvedStudents');
-
+const MAHMOUD_UID = "4yVf0b4WSTh36foBBFNxmivQ5ww2";
     let myCodes = []; // لتخزين أكواد محمود فقط
     let currentUid = null;
 
